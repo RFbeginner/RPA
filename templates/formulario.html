@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Formulário RPA</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <h2>Formulário para gerar RPA</h2>
+  <form method="POST">
+    <input name="razao_social" placeholder="Tomador do serviço" required><br>
+    <input name="cnpj" placeholder="CNPJ" required><br>
+    <input name="mes_ano" placeholder="Data (dd/mm/yyyy)" required><br>
+    <input name="nome" placeholder="Prestador do serviço" required><br>
+    <input name="cpf" placeholder="CPF" required><br>
+    <input name="endereco" placeholder="Endereço" required><br>
+    <input name="local" placeholder="Local da prestação" required><br>
+    <input name="data_prestacao" placeholder="Data da prestação (dd/mm/yyyy)" required><br>
+    <input name="descricao_servico" placeholder="Descrição do serviço" required><br>
+    <input name="posto" placeholder="Posto" required><br>
+    <input name="cobertura" placeholder="Cobertura de:" required><br>
+    <input name="valor_liquido" type="number" step="0.01" placeholder="Valor Líquido" 
+           title="Valor que o prestador deve receber após descontos" required><br>
+    <label>
+      <input type="checkbox" name="forcar_irpf"> Calcular IRPF mesmo abaixo da faixa
+    </label><br>
+    <button type="submit">Gerar Prévia</button>
+  </form>
+</body>
+</html>

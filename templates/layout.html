@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      font-size: 10px;
+      margin: 0;
+      padding: 20px;
+      width: 170mm;
+      box-sizing: border-box;
+    }
+    .logo {
+      text-align: center;
+      margin-bottom: 5px;
+    }
+    .title {
+      text-align: center;
+      font-weight: bold;
+      font-size: 12px;
+      margin-bottom: 5px;
+    }
+    .section {
+      border: 1px solid #000;
+      padding: 5px;
+      margin-bottom: 5px;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+    }
+    .two-column {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+    }
+    .two-column td {
+      width: 50%;
+      vertical-align: top;
+      padding: 0 5px;
+      word-wrap: break-word;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 2px;
+      table-layout: fixed;
+    }
+    th, td {
+      border: 1px solid #000;
+      padding: 2px;
+      text-align: left;
+      font-size: 10px;
+      word-wrap: break-word;
+      max-width: 0;
+    }
+    .bold { font-weight: bold; }
+    .right { text-align: right; }
+    .date-space { margin-top: 5px; }
+    .full-width { width: 100%; }
+    .legal-note {
+      font-size: 8px;
+      text-align: center;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="logo">
+    <img src="/static/logo.jpeg" alt="Logo" style="width: 150px; height: 150px;">
+  </div>
+  <div class="title">RPA – RECIBO DE PAGAMENTO A AUTÔNOMO</div>
+
+  <div class="section">
+    <div class="bold">DADOS DO EMITENTE</div>
+    <p style="word-wrap: break-word;">Nome ou Razão Social: {{ razao_social }}<br>
+    CNPJ: {{ cnpj }}<br>
+    Recibo Nº ou Mês/Ano: {{ recibo_num }} - {{ mes_ano }}</p>
+  </div>
+
+  <div class="section">
+    <div class="bold">DADOS DO PRESTADOR DE SERVIÇOS</div>
+    <p style="word-wrap: break-word;">Nome: {{ nome }}<br>
+    CPF: {{ cpf }}<br>
+    Endereço: {{ endereco }}</p>
+  </div>
+
+  <!-- Primeira linha: Base de Cálculo | Cálculo do INSS -->
+  <table class="two-column">
+    <tr>
+      <td>
+        <div class="section">
+          <div class="bold">BASE DE CÁLCULO</div>
+          <table>
+            <tr><th>Descrição</th><th>Valor (R$)</th></tr>
+            <tr><td>Valor dos Serviços Prestados</td><td class="right">{{ valor_bruto }}</td></tr>
+            <tr><td>-</td><td class="right">-</td></tr>
+            <tr><td>-</td><td class="right">-</td></tr>
+            <tr><td><b>Soma</b></td><td class="right"><b>{{ valor_bruto }}</b></td></tr>
+          </table>
+        </div>
+      </td>
+      <td>
+        <div class="section">
+          <div class="bold">CÁLCULO DO INSS</div>
+          <table>
+            <tr><td>Base de Cálculo</td><td class="right">{{ valor_bruto }}</td></tr>
+            <tr><td>Alíquota</td><td class="right">11%</td></tr>
+            <tr><td>Valor a Recolher</td><td class="right">{{ inss }}</td></tr>
+          </table>
+        </div>
+      </td>
+    </tr>
+  </table>
+
+  <!-- Segunda linha: Descontos | Cálculo do IRPF -->
+  <table class="two-column">
+    <tr>
+      <td>
+        <div class="section">
+          <div class="bold">DESCONTOS</div>
+          <table>
+            <tr><td>Base de Cálculo</td><td class="right">{{ valor_bruto }}</td></tr>
+            <td>INSS Retido</td><td class="right">{{ inss }}</td></tr>
+            <td>ISS Retido</td><td class="right">{{ iss }}</td></tr>
+            <td>IRPF Retido</td><td class="right">{{ irpf }}</td></tr>
+            <tr><td class="bold">Valor Líquido a Receber</td><td class="right"><b>{{ valor_liquido }}</b></td></tr>
+          </table>
+        </div>
+      </td>
+      <td>
+        <div class="section">
+          <div class="bold">CÁLCULO DO IRPF</div>
+          <table>
+            <tr><td>Base de Cálculo</td><td class="right">{{ valor_bruto }}</td></tr>
+            <tr><td>Alíquota</td><td class="right">
+              {% if irpf|float > 0 %}
+                {{ ((irpf|float / valor_bruto|float) * 100)|round(1) }}%
+              {% else %}
+                Isento
+              {% endif %}
+            </td></tr>
+            <tr><td>Valor a Recolher</td><td class="right">
+              {% if irpf|float > 0 %}{{ irpf }}{% else %}-{% endif %}
+            </td></tr>
+          </table>
+        </div>
+      </td>
+    </tr>
+  </table>
+<!-- Cálculo do ISS -->
+  <div class="section">
+    <div class="bold">CÁLCULO DO ISS</div>
+    <table>
+      <tr><td>Base de Cálculo</td><td class="right">{{ valor_bruto }}</td></tr>
+      <tr><td>Alíquota</td><td class="right">2%</td></tr>
+      <tr><td>Valor a Recolher</td><td class="right">{{ iss }}</td></tr>
+    </table>
+  </div>
+
+  <!-- Serviço Prestado -->
+  <div class="section full-width">
+    <div class="bold">SERVIÇO PRESTADO</div>
+    <p style="word-wrap: break-word;">Descrição: {{ descricao_servico }}<br>
+    Posto: {{ posto }}<br>
+    Data: {{ data_prestacao }}<br>
+    Cobertura de: {{ cobertura }}</p>
+  </div>
+
+  
+
+  <p style="word-wrap: break-word;">Recebi do ente acima identificado pela prestação dos serviços a importância de: <strong>R$ {{ valor_liquido }}</strong><br>
+  Local: {{ local }}<br>
+  <div class="date-space">Data: {{ data_prestacao }}</div>
+  <div class="date-space">Data de Emissão: {{ mes_ano }}</div>
+  </p>
+  <br><br>
+  <p>Autorizado por gerente/coordenador: ______________________________________</p>
+  <p>Assinatura do prestador: ______________________________________</p>
+  <p class="legal-note">
+    Este documento atende ao disposto na Lei nº 13.606/2018 e Artigo 168 do RIR/99.<br>
+    Valor do ISS sujeito à alteração conforme legislação municipal vigente.
+  </p>
+</body>
+</html>

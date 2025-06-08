@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Prévia do RPA</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <style>
+    .preview-content {
+      margin: 20px;
+      padding: 20px;
+      border: 1px solid #ccc;
+    }
+    .download-btn {
+      margin-top: 20px;
+      padding: 10px 20px;
+      background-color: #009999;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .download-btn:hover {
+      background-color: #007777;
+    }
+  </style>
+</head>
+<body>
+  <h2>Prévia do RPA</h2>
+  <div class="preview-content">
+    {% include 'layout.html' %}
+  </div>
+  <form action="{{ url_for('download', recibo_num=recibo_num) }}" method="get">
+    {% for key, value in request.args.items() %}
+      <input type="hidden" name="{{ key }}" value="{{ value }}">
+    {% endfor %}
+    <button type="submit" class="download-btn">Baixar PDF</button>
+  </form>
+</body>
+</html>
