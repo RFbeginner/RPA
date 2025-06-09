@@ -1,32 +1,31 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
   <meta charset="UTF-8">
   <style>
     body {
-      font-family: Arial, sans-serif;
+      font-family: 'Montserrat', sans-serif;
       font-size: 10px;
       margin: 0;
-      padding: 20px;
+      padding: 0px;
       width: 170mm;
       box-sizing: border-box;
+      font-weight: 550;
     }
-    .logo {
-      text-align: center;
-      margin-bottom: 5px;
-    }
+    
     .title {
       text-align: center;
       font-weight: bold;
-      font-size: 12px;
-      margin-bottom: 5px;
+      font-size: 18px;
+      margin-bottom: 2px;
     }
     .section {
       border: 1px solid #000;
       padding: 5px;
       margin-bottom: 5px;
-      word-wrap: break-word;
-      overflow-wrap: break-word;
     }
     .two-column {
       width: 100%;
@@ -37,7 +36,6 @@
       width: 50%;
       vertical-align: top;
       padding: 0 5px;
-      word-wrap: break-word;
     }
     table {
       width: 100%;
@@ -50,52 +48,79 @@
       padding: 2px;
       text-align: left;
       font-size: 10px;
-      word-wrap: break-word;
-      max-width: 0;
     }
-    .bold { font-weight: bold; }
-    .right { text-align: right; }
-    .date-space { margin-top: 5px; }
-    .full-width { width: 100%; }
-    .legal-note {
-      font-size: 8px;
-      text-align: center;
-      margin-top: 10px;
+
+ .signature-line {
+        border-bottom: 1px solid #000;
+        width: 100%; /* Make the line take full width of its table cell */
+        margin: 2px auto 0 auto;
+    }
+
+    .bold { font-weight: bold; }
+    .right { text-align: right; }
+    .date-space { margin-top: 5px; }
+    .full-width { width: 100%; }
+.legal-note {
+  font-size: 8px;
+  text-align: center;
+  margin-top: 10px;
+}
+
+    /* New styles for the signature table */
+    .signatures-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 10px;
+    }
+
+    .signatures-table td {
+        width: 50%; /* Each column takes 50% width */
+        text-align: center;
+        vertical-align: bottom; /* Aligns the content to the bottom (useful for signature lines) */
+        padding: 0 10px; /* Add some padding between columns */
+        border: none; /* No borders for the signature table cells */
+    }
+
+    .signatures-table .signature-text {
+        margin-top: 5px; /* Space between line and text */
+        margin-bottom: 5px; /* Space between text and line above (if any) */
     }
   </style>
 </head>
 <body>
-  <div class="logo">
-    <img src="/static/logo.jpeg" alt="file:///C:/Users/RF/OneDrive/Documentos/GitHub/RPA/static/logo.jpeg" style="width: 150px; height: 150px;">
-  </div>
   <div class="title">RPA – RECIBO DE PAGAMENTO A AUTÔNOMO</div>
 
+<div class="section">
+   
+    <p>N°: 3<br>
+    Data de Emissão: 06/2025<br>
+    
+
   <div class="section">
-    <div class="bold">DADOS DO EMITENTE</div>
-    <p style="word-wrap: break-word;">Nome ou Razão Social:  Empresa Contratante de Serviços LTDA<br>
+    <div class="bold">DADOS DO TOMADOR</div>
+    <p>Razão Social:  Empresa Contratante de Serviços LTDA<br>
     CNPJ: 12.345.678/0001-99<br>
-    Recibo Nº ou Mês/Ano: 36 - 06/2025</p>
+    Endereço: </p>
   </div>
 
   <div class="section">
-    <div class="bold">DADOS DO PRESTADOR DE SERVIÇOS</div>
-    <p style="word-wrap: break-word;">Nome: João da Silva Oliveira<br>
+    <div class="bold">DADOS DO PRESTADOR DO SERVIÇO</div>
+    <p>Nome: João da Silva Oliveira<br>
     CPF: 123.456.789-00<br>
-    Endereço: Rua das Flores, 123 - Campinas/SP</p>
+    RG: <br>
+    Endereço: </p>
   </div>
 
-  <!-- Primeira linha: Base de Cálculo | Cálculo do INSS -->
   <table class="two-column">
     <tr>
       <td>
         <div class="section">
           <div class="bold">BASE DE CÁLCULO</div>
           <table>
-            <tr><th>Descrição</th><th>Valor (R$)</th></tr>
-            <tr><td>Valor dos Serviços Prestados</td><td class="right">862.07</td></tr>
+            <td>Descrição</td><td>Valor (R$)</td>
+            <tr><td>Valor Serviços Prestados</td><td class="right">862,07</td></tr>
             <tr><td>-</td><td class="right">-</td></tr>
-            <tr><td>-</td><td class="right">-</td></tr>
-            <tr><td><b>Soma</b></td><td class="right"><b>862.07</b></td></tr>
+            <td>Total</td><td class="right">862,07</td>
           </table>
         </div>
       </td>
@@ -103,27 +128,24 @@
         <div class="section">
           <div class="bold">CÁLCULO DO INSS</div>
           <table>
-            <tr><td>Base de Cálculo</td><td class="right">862.07</td></tr>
+            <tr><td>Base de Cálculo</td><td class="right">862,07</td></tr>
             <tr><td>Alíquota</td><td class="right">11%</td></tr>
-            <tr><td>Valor a Recolher</td><td class="right">94.83</td></tr>
+            <tr><td>Valor a Recolher</td><td class="right">94,83</td></tr>
           </table>
         </div>
       </td>
     </tr>
   </table>
 
-  <!-- Segunda linha: Descontos | Cálculo do IRPF -->
   <table class="two-column">
     <tr>
       <td>
         <div class="section">
-          <div class="bold">DESCONTOS</div>
+          <div class="bold">CÁLCULO DO ISS</div>
           <table>
-            <tr><td>Base de Cálculo</td><td class="right">862.07</td></tr>
-            <td>INSS Retido</td><td class="right">94.83</td></tr>
-            <td>ISS Retido</td><td class="right">17.24</td></tr>
-            <td>IRPF Retido</td><td class="right">0.00</td></tr>
-            <tr><td class="bold">Valor Líquido a Receber</td><td class="right"><b>750</b></td></tr>
+            <tr><td>Base de Cálculo</td><td class="right">862,07</td></tr>
+            <tr><td>Alíquota</td><td class="right">2%</td></tr>
+            <tr><td>Valor a Recolher</td><td class="right">17,24</td></tr>
           </table>
         </div>
       </td>
@@ -131,7 +153,7 @@
         <div class="section">
           <div class="bold">CÁLCULO DO IRPF</div>
           <table>
-            <tr><td>Base de Cálculo</td><td class="right">862.07</td></tr>
+            <tr><td>Base de Cálculo</td><td class="right">862,07</td></tr>
             <tr><td>Alíquota</td><td class="right">
               
                 Isento
@@ -145,38 +167,60 @@
       </td>
     </tr>
   </table>
-<!-- Cálculo do ISS -->
+
   <div class="section">
-    <div class="bold">CÁLCULO DO ISS</div>
+    <div class="bold">MEMÓRIA DE CÁLCULO</div>
     <table>
-      <tr><td>Base de Cálculo</td><td class="right">862.07</td></tr>
-      <tr><td>Alíquota</td><td class="right">2%</td></tr>
-      <tr><td>Valor a Recolher</td><td class="right">17.24</td></tr>
+      <tr><td>Base de Cálculo</td><td class="right">862,07</td></tr>
+      <tr><td>INSS Retido</td><td class="right">94,83</td></tr>
+      <tr><td>ISS Retido</td><td class="right">17,24</td></tr>
+      <tr><td>IRPF Retido</td><td class="right">0,00</td></tr>
+      <td class="bold"><b>Valor Líquido a Receber</b></td><td class="right"><b>750,00</b></td>
+    </table>
     </table>
   </div>
 
-  <!-- Serviço Prestado -->
   <div class="section full-width">
     <div class="bold">SERVIÇO PRESTADO</div>
-    <p style="word-wrap: break-word;">Descrição: aaaaaaaa<br>
+    <p>Descrição: aaaaaaaa<br>
     Posto: aa<br>
     Data: 25/09/2025<br>
     Cobertura de: aa</p>
   </div>
 
-  
+    <div class="section full-width">
+    <div class="bold">DADOS PAGAMENTOS</div>
+    <p>Chave-Pix: <br>
+    Banco/Agência/Conta: <br>
+    
+  </div>
 
-  <p style="word-wrap: break-word;">Recebi do ente acima identificado pela prestação dos serviços a importância de: <strong>R$ 750</strong><br>
-  Local: Campinas/SP<br>
-  <div class="date-space">Data: 25/09/2025</div>
-  <div class="date-space">Data de Emissão: 06/2025</div>
+  <p>Recebi do ente acima identificado pela prestação dos serviços a importância de: R$ 750,00<br>
+  
+  
+  
   </p>
   <br><br>
-  <p>Autorizado por gerente/coordenador: ______________________________________</p>
-  <p>Assinatura do prestador: ______________________________________</p>
-  <p class="legal-note">
-    Este documento atende ao disposto na Lei nº 13.606/2018 e Artigo 168 do RIR/99.<br>
-    Valor do ISS sujeito à alteração conforme legislação municipal vigente.
-  </p>
+
+
+
+<table class="signatures-table">
+    <tr>
+        <td>
+          <p class="signature-text"></p>
+            <div class="signature-line"></div>
+         
+            <p class="signature-text">Autorizado por gerente/coordenador</p>
+        </td>
+        <td>
+            <div class="signature-line"></div>
+            <p class="signature-text">Assinatura do prestador</p>
+        </td>
+    </tr>
+</table>
+<p class="legal-note">
+  Este documento atende ao disposto na Lei nº 13.606/2018 e Artigo 168 do RIR/99.<br>
+  Valor do ISS sujeito à alteração conforme legislação municipal vigente.
+</p>
 </body>
 </html>

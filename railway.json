@@ -1,0 +1,7 @@
+{
+  "build": {
+    "env": {
+      "FLASK_ENV": "production"
+    }
+  }
+}

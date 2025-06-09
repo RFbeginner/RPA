@@ -2,7 +2,15 @@ from flask import Flask, render_template, request, send_file, redirect, url_for
 import pdfkit
 import io
 import os
+from validate_docbr import CPF, CNPJ
 
+import sys # Importe sys globalmente
+
+# Importações condicionais para travamento de arquivo
+if sys.platform == 'win32':
+    import msvcrt
+else:
+    import fcntl
 app = Flask(__name__)
 app.config['TEMPLATES_AUTO_RELOAD'] = True
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
@@ -27,68 +35,91 @@ options = {
     'page-height': '297mm'
 }
 
+cpf = CPF()
+cnpj = CNPJ()
+
 COUNTER_FILE = 'recibo_counter.txt'
-
 def get_next_recibo_number():
-    if os.path.exists(COUNTER_FILE):
-        with open(COUNTER_FILE, 'r') as f:
-            content = f.read().strip()
-            if content:
-                current_number = int(content)
-            else:
-                current_number = 0
+    """
+    Reads, increments, and writes the next sequential receipt number.
+    Uses file locking to prevent race conditions in multi-threaded/multi-process environments.
+    """
+    # Use different locking mechanisms based on OS
+    if sys.platform == 'win32':
+        lock_method = msvcrt.locking
+        LOCK_EX = msvcrt.LK_NBLCK # Non-blocking lock for Windows
+        # Para msvcrt.locking, o terceiro argumento (nbytes) é o número de bytes a serem bloqueados.
+        # Para bloquear todo o arquivo (ou a parte relevante), 0 geralmente funciona,
+        # ou um número grande o suficiente. Vamos usar 0.
+        LOCK_SIZE = 0 # Bloqueia do offset atual até o final do arquivo, ou todo o arquivo se offset 0
     else:
-        current_number = 0
-    next_number = current_number + 1
-    with open(COUNTER_FILE, 'w') as f:
-        f.write(str(next_number))
-    return next_number
+        lock_method = fcntl.flock
+        LOCK_EX = fcntl.LOCK_EX | fcntl.LOCK_NB # Non-blocking lock for Unix
 
+    while True: # Keep trying to acquire lock
+        try:
+            with open(COUNTER_FILE, 'r+') as f:
+                # Acquire an exclusive lock on the file
+                if sys.platform == 'win32':
+                    lock_method(f.fileno(), LOCK_EX, LOCK_SIZE) # Adicionei LOCK_SIZE aqui
+                else:
+                    lock_method(f.fileno(), LOCK_EX) # Unix-like não precisa do 3º arg
+
+                f.seek(0)
+                content = f.read().strip()
+                current_number = int(content) if content else 0
+                next_number = current_number + 1
+                f.seek(0)
+                f.truncate() # Clear content before writing
+                f.write(str(next_number))
+            return next_number
+        except (IOError, BlockingIOError) as e:
+            # If lock fails, it means another process has the lock, retry
+            # In a real-world scenario, you might want to add a small delay
+            print(f"Waiting for file lock on {COUNTER_FILE}: {e}")
+            import time
+            time.sleep(0.05) # Wait a bit before retrying
 def calcular_irpf(base):
-    # Cálculo progressivo CORRETO do IRPF
-    if base <= 1903.98:
+    """
+    Tabela IRPF 2025 vigente a partir de maio (com deduções fixas)
+    """
+    if base <= 2428.80:
         return 0.0
     elif base <= 2826.65:
-        return base * 0.075 - 142.80
+        return round((base * 0.075) - 182.16, 2)
     elif base <= 3751.05:
-        return base * 0.15 - 354.80
+        return round((base * 0.15) - 394.16, 2)
     elif base <= 4664.68:
-        return base * 0.225 - 636.13
+        return round((base * 0.225) - 675.49, 2)
     else:
-        return base * 0.275 - 869.36
-    imposto = 0
-    for faixa, aliquota in faixas:
-        if base <= faixa:
-            imposto += base * aliquota
-            break
-        else:
-            imposto += faixa * aliquota
-            base -= faixa
-    return imposto
+        return round((base * 0.275) - 908.73, 2)
 
-# Adicione esta função auxiliar para evitar duplicação
 def calcular_valores_finais(valor_liquido, forcar_irpf=False):
-    # Mesma lógica de cálculo da rota principal
-    base = valor_liquido / (1 - 0.11 - 0.02)
-    inss = base * 0.11
-    iss = base * 0.02
-    irpf = 0.0
+    base = valor_liquido / 0.87  # 1 - 0.11 - 0.02
 
-    if forcar_irpf or base > 1903.98:
-        for _ in range(3):
-            irpf = calcular_irpf(base)
-            base_nova = (valor_liquido + inss + iss + irpf) / (1 - 0.11 - 0.02)
-            if abs(base_nova - base) < 0.01:
-                break
-            base = base_nova
-            inss = base * 0.11
-            iss = base * 0.02
+    if not forcar_irpf and base <= 2428.80:
+        return {
+            'base': round(base, 2),
+            'inss': round(base * 0.11, 2),
+            'iss': round(base * 0.02, 2),
+            'irpf': 0.0
+        }
+
+    # Iteração refinada com tolerância menor
+    for _ in range(20):
+        inss = base * 0.11
+        iss = base * 0.02
+        irpf = calcular_irpf(base)
+        nova_base = valor_liquido + inss + iss + irpf
+        if abs(nova_base - base) < 0.001:
+            break
+        base = nova_base
 
     return {
-        'base': base,
-        'inss': inss,
-        'iss': iss,
-        'irpf': irpf
+        'base': round(base, 2),
+        'inss': round(base * 0.11, 2),
+        'iss': round(base * 0.02, 2),
+        'irpf': calcular_irpf(base)
     }
 
 @app.route('/', methods=['GET', 'POST'])
@@ -98,10 +129,8 @@ def index():
         valor_liquido = float(dados['valor_liquido'])
         forcar_irpf = 'forcar_irpf' in dados and dados['forcar_irpf'] == 'on'
 
-        # Calcular valores finais usando a função auxiliar
         resultados = calcular_valores_finais(valor_liquido, forcar_irpf)
 
-        # Atualizar dados
         dados.update({
             'valor_bruto': f"{resultados['base']:.2f}",
             'inss': f"{resultados['inss']:.2f}",
@@ -118,49 +147,42 @@ def preview():
     dados = request.args.to_dict()
     valor_liquido = float(dados['valor_liquido'])
     forcar_irpf = dados.get('forcar_irpf', 'off') == 'on'
-    
+
     valores = calcular_valores_finais(valor_liquido, forcar_irpf)
-    
+
     dados.update({
         'valor_bruto': f"{valores['base']:.2f}",
         'inss': f"{valores['inss']:.2f}",
         'iss': f"{valores['iss']:.2f}",
         'irpf': f"{valores['irpf']:.2f}",
-        'recibo_num': get_next_recibo_number()
+        # Do NOT call get_next_recibo_number() here
+        # The 'recibo_num' should already be in 'dados' from the index route
+        'recibo_num': dados['recibo_num'] # Ensure we use the one already passed
     })
     return render_template("preview.html", **dados)
+
 
 @app.route('/download/<recibo_num>')
 def download(recibo_num):
     dados = request.args.to_dict()
     valor_liquido = float(dados['valor_liquido'])
-    
-    base = valor_liquido / (1 - 0.11 - 0.02)
-    irpf = 0.0
-    if float(dados.get('irpf', 0)) > 0 or ('forcar_irpf' in dados and dados['forcar_irpf'] == 'on'):
-        base = valor_liquido / (1 - 0.11 - 0.02 - 0.075)
-        irpf = calcular_irpf(base)
-    
-    inss = base * 0.11
-    iss = base * 0.02
-    
-    valor_liquido_calculado = base - inss - iss - irpf
-    tolerancia = 0.01
-    if abs(valor_liquido_calculado - valor_liquido) > tolerancia:
-        diferenca = valor_liquido - valor_liquido_calculado
-        iss += diferenca * 0.3
-        inss += diferenca * 0.7
+
+    valores = calcular_valores_finais(valor_liquido, dados.get('forcar_irpf', 'off') == 'on')
+
+    base = valores['base']
+    inss = valores['inss']
+    iss = valores['iss']
+    irpf = valores['irpf']
 
     dados.update({
         'valor_bruto': f"{base:.2f}",
         'inss': f"{inss:.2f}",
         'iss': f"{iss:.2f}",
         'irpf': f"{irpf:.2f}",
-        'recibo_num': recibo_num
+        'recibo_num': recibo_num # Use the recibo_num from the URL
     })
 
     html = render_template("layout.html", **dados)
-    print("HTML gerado (primeiros 500 caracteres):", html[:500])
 
     with open('debug_html.html', 'w', encoding='utf-8') as f:
         f.write(html)
@@ -173,5 +195,30 @@ def download(recibo_num):
         as_attachment=True
     )
 
+@app.route('/teste/<valor>')
+def teste_calculo(valor):
+    valor_liquido = float(valor)
+    resultados = calcular_valores_finais(valor_liquido, False)
+    return {
+        'valor_liquido': valor_liquido,
+        'valor_bruto': f"R$ {resultados['base']:.2f}",
+        'inss': f"R$ {resultados['inss']:.2f} ({(resultados['inss']/resultados['base']*100):.2f}%)",
+        'iss': f"R$ {resultados['iss']:.2f} ({(resultados['iss']/resultados['base']*100):.2f}%)",
+        'irpf': f"R$ {resultados['irpf']:.2f} ({(resultados['irpf']/resultados['base']*100):.2f}%)",
+        'total_descontos': f"R$ {(resultados['inss'] + resultados['iss'] + resultados['irpf']):.2f}",
+        'valor_liquido_calculado': f"R$ {(resultados['base'] - resultados['inss'] - resultados['iss'] - resultados['irpf']):.2f}"
+    }
+
+@app.template_filter('br_currency')
+def br_currency(valor):
+    try:
+        return "{:,.2f}".format(float(valor)).replace(",", "X").replace(".", ",").replace("X", ".")
+    except (ValueError, TypeError):
+        return valor
+
+
+# ... (restante do seu código) ...
+
 if __name__ == '__main__':
-    app.run(debug=True)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(debug=False, host='0.0.0.0', port=port)

@@ -2,29 +2,195 @@
 <html lang="pt-br">
 <head>
   <meta charset="UTF-8">
-  <title>Formulário RPA</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <title>Gerar RPA</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 30px;
+    }
+    label {
+      display: block;
+      margin-top: 10px;
+      font-weight: bold;
+    }
+    input, select, textarea {
+      width: 100%;
+      padding: 5px;
+      margin-top: 5px;
+      box-sizing: border-box;
+    }
+    button {
+      margin-top: 20px;
+      padding: 10px 15px;
+      background-color: #009999;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #007777;
+    }
+    .error {
+        border: 1px solid red;
+    }
+  </style>
 </head>
 <body>
-  <h2>Formulário para gerar RPA</h2>
-  <form method="POST">
-    <input name="razao_social" placeholder="Tomador do serviço" required><br>
-    <input name="cnpj" placeholder="CNPJ" required><br>
-    <input name="mes_ano" placeholder="Data (dd/mm/yyyy)" required><br>
-    <input name="nome" placeholder="Prestador do serviço" required><br>
-    <input name="cpf" placeholder="CPF" required><br>
-    <input name="endereco" placeholder="Endereço" required><br>
-    <input name="local" placeholder="Local da prestação" required><br>
-    <input name="data_prestacao" placeholder="Data da prestação (dd/mm/yyyy)" required><br>
-    <input name="descricao_servico" placeholder="Descrição do serviço" required><br>
-    <input name="posto" placeholder="Posto" required><br>
-    <input name="cobertura" placeholder="Cobertura de:" required><br>
-    <input name="valor_liquido" type="number" step="0.01" placeholder="Valor Líquido" 
-           title="Valor que o prestador deve receber após descontos" required><br>
-    <label>
-      <input type="checkbox" name="forcar_irpf"> Forçar o calculo de IRPF mesmo abaixo da faixa
-    </label><br>
+  <h2>Formulário para Gerar RPA</h2>
+
+  <form method="POST" action="/" onsubmit="return validarFormulario()">
+    <section class="tomador"> <h3>Dados do Tomador de Serviço</h3>
+    <p>Selecione a empresa para preencher os dados automaticamente:</p>
+    <label for="empresa">Empresa:</label>
+    <select id="empresa" name="empresa" onchange="preencherEmpresa()">
+      <option value="">-- Selecione --</option>
+      <option value="obra_prima">Obra Prima</option>
+      <option value="quali">Quali</option>
+    </select>
+    </section>
+    
+    <label for="razao_social">Nome ou Razão Social:</label>
+    <input type="text" id="razao_social" name="razao_social" required>
+
+    <label for="cnpj">CNPJ:</label>
+    <input type="text" id="cnpj" name="cnpj" required>
+
+    <label for="endereco">Endereço:</label>
+    <input type="text" id="endereco_tomador" name="endereco_tomador" required>
+    </section>
+
+    <section class="prestador">
+    <h3>Dados do Prestador de Serviço</h3>
+    <p>Preencha os dados do prestador de serviço:</p>
+    <label for="nome">Nome do Prestador:</label>
+    <input type="text" id="nome" name="nome" required placeholder="Nome completo">
+
+    <label for="cpf">CPF:</label>
+    <input type="text" id="cpf" name="cpf" required onkeyup="formatarCpf(this)" onblur="validarCpf(this)" placeholder="Ex: 123.456.789-00">
+
+    <label for=""rg">RG:</label>
+    <input type="text" id="rg" name="rg"  placeholder="Ex: 12.345.678-9">
+
+    <label for="endereco">Endereço:</label>
+    <input type="text" id="endereco" name="endereco_prestador" required placeholder="Endereço completo">
+     </section>
+
+    <section class="servico">
+    <h3>Dados do Serviço</h3>
+    <p>Preencha os dados do Serviço</p>
+    <label for="descricao_servico">Descrição do Serviço:</label>
+    <textarea id="descricao_servico" name="descricao_servico" rows="3" placeholder="Ex: Limpeza Geral" required></textarea>
+
+    <label for="posto">Posto:</label>
+    <input type="text" id="posto" name="posto" required placeholder="Ex: Sicredi Curitiba">
+
+    <label for="data_prestacao">Data da Prestação:</label>
+    <input type="text" id="data_prestacao" name="data_prestacao" required placeholder="Ex: 01/06/2025 (Para mais de uma data, separe por vírgula)">
+
+    <label for="cobertura">Cobertura de:</label>
+    <input type="text" id="cobertura" name="cobertura" required placeholder="Ex: Jõao da Silva">
+
+    <label for="mes_ano">Data de emissão:</label>
+    <input type="text" id="mes_ano" name="mes_ano" placeholder="Ex: 19/06/2025" required>
+
+   
+
+    <label for="valor_liquido">Valor Líquido a Receber (R$):</label>
+    <input type="number" step="0.01" id="valor_liquido" name="valor_liquido" required placeholder="Ex: 1000 (Valor acordado para execução do serviço)">
+    </section>
+
+    <section class="pagamento">
+    <h3>Dados de Pagamento</h3>
+    <p>Preencha os dados de pagamento:</p>
+    <label for="forma_pagamento">Chave-Pix:</label>
+    
+      <input type="text" id="pix" name="pagamento" placeholder="Insira a Chave-Pix ou TED"></label>
+      
+       <label for="conta">Depósito:</label>
+    <input type="text" id="conta" name="conta" required placeholder="Banco: ABC, Agência: 1234, Conta: 5678-9">
+    </section>
+
+    <label for="Assinatura">Autorizado por: </label>
+    <input type="text" id="Assinatura" name="Assinatura" required placeholder="Nome do gerente/coordenador">
     <button type="submit">Gerar Prévia</button>
   </form>
+
+  <script>
+    function preencherEmpresa() {
+      const empresa = document.getElementById('empresa').value;
+      const razao = document.getElementById('razao_social');
+      const cnpj = document.getElementById('cnpj');
+      const endereco_tomador = document.getElementById('endereco_tomador');
+
+      if (empresa === 'obra_prima') {
+        razao.value = 'Obra Prima S/a Tecnologia e Administracao de Servicos';
+        cnpj.value = '84.920.792/0001-02';
+        endereco_tomador.value = 'Rua Amaro de Santa Rita, 167, Fanny, Curitiba - PR - 81030-230';
+      } else if (empresa === 'quali') {
+        razao.value = 'QUALI SERV FACILITIES E TERCEIRIZACAO DE SERVICOS LTDA';
+        cnpj.value = '47.050.615/0001-96';
+        endereco_tomador.value = 'Rua Nestor Victor, 436, Agua Verde, Curitiba - PR - 80620-400';
+      } else {
+        razao.value = '';
+        cnpj.value = '';
+        endereco_tomador.value = '';
+      }
+    }
+
+    // Função para formatar o CPF
+    function formatarCpf(input) {
+        let cpf = input.value.replace(/\D/g, ''); // Remove tudo que não é dígito
+        if (cpf.length > 11) {
+            cpf = cpf.substring(0, 11);
+        }
+        cpf = cpf.replace(/(\d{3})(\d)/, '$1.$2');    // Coloca ponto entre o terceiro e o quarto dígitos
+        cpf = cpf.replace(/(\d{3})(\d)/, '$1.$2');    // Coloca ponto entre o sexto e o sétimo dígitos
+        cpf = cpf.replace(/(\d{3})(\d{1,2})$/, '$1-$2'); // Coloca hífen entre o nono e o décimo dígitos
+        input.value = cpf;
+    }
+
+    // Função para validar o CPF (lógica simplificada)
+    function isValidCPF(cpf) {
+        cpf = cpf.replace(/\D/g, ''); // Remove caracteres não numéricos
+        if (cpf.length !== 11 || /^(\d)\1{10}$/.test(cpf)) return false; // Verifica se tem 11 dígitos e não é uma sequência de dígitos iguais
+        let sum = 0;
+        let remainder;
+        for (let i = 1; i <= 9; i++) sum = sum + parseInt(cpf.substring(i - 1, i)) * (11 - i);
+        remainder = (sum * 10) % 11;
+        if ((remainder === 10) || (remainder === 11)) remainder = 0;
+        if (remainder !== parseInt(cpf.substring(9, 10))) return false;
+        sum = 0;
+        for (let i = 1; i <= 10; i++) sum = sum + parseInt(cpf.substring(i - 1, i)) * (12 - i);
+        remainder = (sum * 10) % 11;
+        if ((remainder === 10) || (remainder === 11)) remainder = 0;
+        if (remainder !== parseInt(cpf.substring(10, 11))) return false;
+        return true;
+    }
+
+    // Função para validar o CPF e dar o alert
+    function validarCpf(input) {
+        const cpfValor = input.value;
+        if (cpfValor.length > 0 && !isValidCPF(cpfValor)) {
+            alert('CPF incorreto! Por favor, verifique o número.');
+            input.classList.add('error'); // Adiciona classe para estilizar o campo
+            return false;
+        } else {
+            input.classList.remove('error'); // Remove a classe se estiver correto
+            return true;
+        }
+    }
+
+    // Função que será chamada no submit do formulário
+    function validarFormulario() {
+        const cpfInput = document.getElementById('cpf');
+        // Valida o CPF antes de permitir o submit
+        if (!validarCpf(cpfInput)) {
+            cpfInput.focus(); // Coloca o foco de volta no campo CPF
+            return false; // Impede o envio do formulário
+        }
+        return true; // Permite o envio do formulário
+    }
+  </script>
 </body>
 </html>

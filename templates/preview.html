@@ -5,20 +5,44 @@
   <title>Prévia do RPA</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
   <style>
-    .preview-content {
-      margin: 20px;
-      padding: 20px;
-      border: 1px solid #ccc;
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f7f7f7;
+      color: #333;
+      margin: 0;
+      padding: 0;
     }
+
+    h2 {
+      text-align: center;
+      margin-top: 30px;
+    }
+
+    .preview-wrapper {
+      max-width: 900px;
+      margin: 20px auto;
+      padding: 20px;
+      background-color: white;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      border-radius: 5px;
+    }
+
+    .download-form {
+      text-align: center;
+      margin-top: 30px;
+    }
+
     .download-btn {
-      margin-top: 20px;
-      padding: 10px 20px;
+      padding: 12px 25px;
+      font-size: 16px;
       background-color: #009999;
       color: white;
       border: none;
-      border-radius: 5px;
+      border-radius: 6px;
       cursor: pointer;
+      transition: background-color 0.3s;
     }
+
     .download-btn:hover {
       background-color: #007777;
     }
@@ -26,14 +50,16 @@
 </head>
 <body>
   <h2>Prévia do RPA</h2>
-  <div class="preview-content">
+
+  <div class="preview-wrapper">
     {% include 'layout.html' %}
   </div>
-  <form action="{{ url_for('download', recibo_num=recibo_num) }}" method="get">
+
+  <form class="download-form" action="{{ url_for('download', recibo_num=recibo_num) }}" method="get">
     {% for key, value in request.args.items() %}
       <input type="hidden" name="{{ key }}" value="{{ value }}">
     {% endfor %}
-    <button type="submit" class="download-btn">Baixar PDF</button>
+    <button type="submit" class="download-btn">⬇️ Baixar PDF</button>
   </form>
 </body>
 </html>
