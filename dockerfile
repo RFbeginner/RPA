@@ -1,7 +1,6 @@
-# Imagem base com Python + dependências mínimas
-FROM python:3.11-slim-bullseye
+FROM python:3.11-slim-bookworm
 
-# Instala dependências do wkhtmltopdf
+# Atualiza os pacotes do sistema e instala o wkhtmltopdf
 RUN apt-get update && apt-get upgrade -y && apt-get install -y \
     wkhtmltopdf \
     build-essential \
@@ -10,18 +9,22 @@ RUN apt-get update && apt-get upgrade -y && apt-get install -y \
     libxrender1 \
     libxext6 \
     libx11-6 \
- && apt-get clean && rm -rf /var/lib/apt/lists/*
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Cria o link simbólico no caminho esperado
-RUN ln -s /usr/bin/wkhtmltopdf /usr/local/bin/wkhtmltopdf
-
+# Diretório de trabalho
 WORKDIR /app
 
+# Copia tudo
 COPY . .
 
+# Instala dependências Python
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Expondo a porta
 EXPOSE 8000
 
-CMD ["python", "app.py"]
+# Criar link simbólico para o wkhtmltopdf
+RUN ln -s /usr/bin/wkhtmltopdf /usr/local/bin/wkhtmltopdf
 
+# Comando para rodar
+CMD ["python", "app.py"]
