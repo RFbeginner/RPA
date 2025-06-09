@@ -1,15 +1,21 @@
 FROM python:3.11-slim-bookworm
 
 # Atualiza os pacotes do sistema e instala o wkhtmltopdf
-RUN apt-get update && apt-get upgrade -y && apt-get install -y \
-    wkhtmltopdf \
-    build-essential \
-    libssl-dev \
-    libffi-dev \
+# Instala dependências e o pacote oficial wkhtmltopdf com QT
+RUN apt-get update && apt-get install -y \
+    wget \
+    xfonts-75dpi \
+    xfonts-base \
+    libjpeg62-turbo \
     libxrender1 \
+    libxtst6 \
     libxext6 \
-    libx11-6 \
+    libfontconfig1 \
+    && wget https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/0.12.6/wkhtmltox_0.12.6-1.buster_amd64.deb \
+    && apt install -y ./wkhtmltox_0.12.6-1.buster_amd64.deb \
+    && rm wkhtmltox_0.12.6-1.buster_amd64.deb \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
+
 
 # Diretório de trabalho
 WORKDIR /app

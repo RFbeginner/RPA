@@ -20,7 +20,7 @@ if not path_wkhtmltopdf:
     if platform.system().lower().startswith('win'):
         path_wkhtmltopdf = r"C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe"
     else:
-        path_wkhtmltopdf = "/usr/bin/wkhtmltopdf"
+        path_wkhtmltopdf = "/usr/local/bin/wkhtmltopdf"
 
 # Verificação final
 if not os.path.exists(path_wkhtmltopdf):
