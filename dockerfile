@@ -1,7 +1,7 @@
 # Imagem base com Python + dependências mínimas
 FROM python:3.11-slim-bullseye
 
-# Atualiza todos os pacotes do sistema e instala dependências do sistema e o wkhtmltopdf
+# Instala dependências do wkhtmltopdf
 RUN apt-get update && apt-get upgrade -y && apt-get install -y \
     wkhtmltopdf \
     build-essential \
@@ -10,19 +10,18 @@ RUN apt-get update && apt-get upgrade -y && apt-get install -y \
     libxrender1 \
     libxext6 \
     libx11-6 \
-    && apt-get clean && rm -rf /var/lib/apt/lists/*
+ && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Diretório de trabalho
+# Cria o link simbólico no caminho esperado
+RUN ln -s /usr/bin/wkhtmltopdf /usr/local/bin/wkhtmltopdf
+
 WORKDIR /app
 
-# Copia tudo
 COPY . .
 
-# Instala dependências Python
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Expõe a porta do Flask
 EXPOSE 8000
 
-# Comando para rodar o app
 CMD ["python", "app.py"]
+

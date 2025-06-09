@@ -3,8 +3,13 @@ import pdfkit
 import io
 import os
 from validate_docbr import CPF, CNPJ
+import platform
 
 import sys # Importe sys globalmente
+
+
+print("Sistema detectado no deploy:", platform.system())
+
 
 # Importações condicionais para travamento de arquivo
 if sys.platform == 'win32':
@@ -15,7 +20,13 @@ app = Flask(__name__)
 app.config['TEMPLATES_AUTO_RELOAD'] = True
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 
-config = pdfkit.configuration(wkhtmltopdf='C:\\Program Files\\wkhtmltopdf\\bin\\wkhtmltopdf.exe')
+if platform.system().lower().startswith('win'):
+    # Caminho do seu PC
+    config = pdfkit.configuration(wkhtmltopdf='C:\\Program Files\\wkhtmltopdf\\bin\\wkhtmltopdf.exe')
+else:
+    # Caminho do servidor Railway
+    config = pdfkit.configuration(wkhtmltopdf='/usr/local/bin/wkhtmltopdf')
+
 options = {
     'disable-external-links': None,
     'disable-javascript': None,
