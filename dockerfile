@@ -1,7 +1,6 @@
 FROM python:3.11-slim-bookworm
 
-# Atualiza os pacotes do sistema e instala o wkhtmltopdf
-# Instala dependências e o pacote oficial wkhtmltopdf com QT
+# Instala dependências do sistema
 RUN apt-get update && apt-get install -y \
     wget \
     xfonts-75dpi \
@@ -16,21 +15,17 @@ RUN apt-get update && apt-get install -y \
     && rm wkhtmltox_0.12.6-1.buster_amd64.deb \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-
-# Diretório de trabalho
+# Define o diretório de trabalho
 WORKDIR /app
 
-# Copia tudo
+# Copia os arquivos do projeto
 COPY . .
 
-# Instala dependências Python
+# Instala as dependências Python
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Expondo a porta
+# Expondo a porta para o Railway
 EXPOSE 8000
 
-# Criar link simbólico para o wkhtmltopdf
-#RUN ln -s /usr/bin/wkhtmltopdf /usr/local/bin/wkhtmltopdf
-
-# Comando para rodar
+# Comando para iniciar a aplicação
 CMD ["python", "app.py"]
