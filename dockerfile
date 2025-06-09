@@ -24,7 +24,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 EXPOSE 8000
 
 # Criar link simbólico para o wkhtmltopdf
-RUN ln -s /usr/bin/wkhtmltopdf /usr/local/bin/wkhtmltopdf
+#RUN ln -s /usr/bin/wkhtmltopdf /usr/local/bin/wkhtmltopdf
 
 # Comando para rodar
 CMD ["python", "app.py"]

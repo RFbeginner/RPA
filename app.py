@@ -4,9 +4,15 @@ import io
 import os
 from validate_docbr import CPF, CNPJ
 import platform
+import shutil
 
 import sys # Importe sys globalmente
 
+path_wkhtmltopdf = shutil.which("wkhtmltopdf")
+if not path_wkhtmltopdf:
+    raise RuntimeError("wkhtmltopdf não encontrado no PATH")
+
+config = pdfkit.configuration(wkhtmltopdf=path_wkhtmltopdf)
 
 print("Sistema detectado no deploy:", platform.system())
 
@@ -21,11 +27,10 @@ app.config['TEMPLATES_AUTO_RELOAD'] = True
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 
 if platform.system().lower().startswith('win'):
-    # Caminho do seu PC
     config = pdfkit.configuration(wkhtmltopdf='C:\\Program Files\\wkhtmltopdf\\bin\\wkhtmltopdf.exe')
 else:
-    # Caminho do servidor Railway
     config = pdfkit.configuration(wkhtmltopdf='/usr/local/bin/wkhtmltopdf')
+
 
 options = {
     'disable-external-links': None,
