@@ -11,6 +11,13 @@ if sys.platform == 'win32':
     import msvcrt
 else:
     import fcntl
+
+    # ... outras importações ...
+
+WKHTMLTOPDF_BIN = os.environ.get('WKHTMLTOPDF_BINARY_PATH', 'C:\\Program Files\\wkhtmltopdf\\bin\\wkhtmltopdf.exe')
+config = pdfkit.configuration(wkhtmltopdf=WKHTMLTOPDF_BIN)
+
+# ... restante do seu código ...
 app = Flask(__name__)
 app.config['TEMPLATES_AUTO_RELOAD'] = True
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
