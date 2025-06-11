@@ -1,0 +1,5 @@
+bin/
+usr/
+*.so
+*.deb
+*.zip
