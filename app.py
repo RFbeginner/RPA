@@ -2,7 +2,7 @@ from flask import Flask, render_template, request, send_file, redirect, url_for
 import pdfkit
 import io
 import os
-from validate_docbr import CPF, CNPJ  # Corrigido "docbn" para "docbr"
+from validate_docbr import CPF, CNPJ  
 import sys
 
 # Configuração correta para travamento de arquivo
@@ -29,7 +29,7 @@ app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 options = {
     'disable-external-links': None,
     'disable-javascript': None,
-    'no-stop-slow-scripts': None,  # Corrigido "slowscripts"
+    'no-stop-slow-scripts': None,  
     'load-error-handling': 'ignore',
     'image-dpi': '300',
     'enable-local-file-access': None,
@@ -43,9 +43,9 @@ options = {
     'print-media-type': None,
     'page-width': '210mm',
     'page-height': '297mm'
-}  # Faltava fechar o dicionário
+}  
 
-# ... restante do código ...
+
 
 cpf = CPF()
 cnpj = CNPJ()
@@ -90,7 +90,7 @@ def get_next_recibo_number():
             # In a real-world scenario, you might want to add a small delay
             print(f"Waiting for file lock on {COUNTER_FILE}: {e}")
             import time
-            time.sleep(0.05) # Wait a bit before retrying
+            time.sleep(0.05) 
 def calcular_irpf(base):
     """
     Tabela IRPF 2025 vigente a partir de maio (com deduções fixas)
@@ -167,9 +167,7 @@ def preview():
         'inss': f"{valores['inss']:.2f}",
         'iss': f"{valores['iss']:.2f}",
         'irpf': f"{valores['irpf']:.2f}",
-        # Do NOT call get_next_recibo_number() here
-        # The 'recibo_num' should already be in 'dados' from the index route
-        'recibo_num': dados['recibo_num'] # Ensure we use the one already passed
+        'recibo_num': dados['recibo_num'] 
     })
     return render_template("preview.html", **dados)
 
@@ -191,7 +189,7 @@ def download(recibo_num):
         'inss': f"{inss:.2f}",
         'iss': f"{iss:.2f}",
         'irpf': f"{irpf:.2f}",
-        'recibo_num': recibo_num # Use the recibo_num from the URL
+        'recibo_num': recibo_num 
     })
 
     html = render_template("layout.html", **dados)
@@ -229,7 +227,7 @@ def br_currency(valor):
         return valor
 
 
-# ... (restante do seu código) ...
+
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=8000)
