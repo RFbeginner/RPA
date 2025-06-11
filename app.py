@@ -6,15 +6,14 @@ from validate_docbr import CPF, CNPJ
 import sys
 
 # Configuração correta para travamento de arquivo
-if sys.platform == 'win32':  # Corrigido "wins2" para "win32"
-    import msvcrt  # Corrigido "msvcrit" para "msvcrt"
+if sys.platform == 'win32':
+    import msvcrt
 else:
     import fcntl
 
-import os
-WKHTMLTOPDF_PATH = os.environ.get('WKHTMLTOPDF_PATH', '/opt/render/project/src/bin/wkhtmltopdf')
+# Configuração dinâmica do caminho do wkhtmltopdf
+WKHTMLTOPDF_PATH = '/usr/bin/wkhtmltopdf'  # Caminho do symlink no Dockerfile
 config = pdfkit.configuration(wkhtmltopdf=WKHTMLTOPDF_PATH)
-
 
 app = Flask(__name__)
 app.config['TEMPLATES_AUTO_RELOAD'] = True
@@ -23,7 +22,7 @@ app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 options = {
     'disable-external-links': None,
     'disable-javascript': None,
-    'no-stop-slow-scripts': None,  
+    'no-stop-slow-scripts': None,
     'load-error-handling': 'ignore',
     'image-dpi': '300',
     'enable-local-file-access': None,
@@ -37,7 +36,7 @@ options = {
     'print-media-type': None,
     'page-width': '210mm',
     'page-height': '297mm'
-}  
+}
 
 
 
