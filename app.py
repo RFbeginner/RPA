@@ -11,16 +11,10 @@ if sys.platform == 'win32':  # Corrigido "wins2" para "win32"
 else:
     import fcntl
 
-# Configuração dinâmica do caminho do wkhtmltopdf
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-
-if sys.platform == 'win32':
-    # Caminho padrão de instalação no Windows
-    WKHTMLTOPDF_PATH = r'C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe'
-else:
-    WKHTMLTOPDF_PATH = os.path.join(BASE_DIR, 'bin', 'wkhtmltopdf')
-
+import os
+WKHTMLTOPDF_PATH = os.environ.get('WKHTMLTOPDF_PATH', '/opt/render/project/src/bin/wkhtmltopdf')
 config = pdfkit.configuration(wkhtmltopdf=WKHTMLTOPDF_PATH)
+
 
 app = Flask(__name__)
 app.config['TEMPLATES_AUTO_RELOAD'] = True
