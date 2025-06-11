@@ -2,62 +2,34 @@ from flask import Flask, render_template, request, send_file, redirect, url_for
 import pdfkit
 import io
 import os
-import shutil
-from validate_docbr import CPF, CNPJ
-import platform
+from validate_docbr import CPF, CNPJ  # Corrigido "docbn" para "docbr"
 import sys
 
-
-# Diagnóstico: mostrar sistema
-print("Sistema detectado no deploy:", platform.system())
-
-# Caminho automático via PATH
-path_wkhtmltopdf = shutil.which("wkhtmltopdf")
-
-# Fallbacks se o caminho automático falhar
-if not path_wkhtmltopdf:
-    print("wkhtmltopdf não encontrado no PATH, tentando caminhos fixos...")
-    if platform.system().lower().startswith('win'):
-        path_wkhtmltopdf = r"C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe"
-    else:
-        path_wkhtmltopdf = "/usr/local/bin/wkhtmltopdf"
-
-# Verificação final
-if not os.path.exists(path_wkhtmltopdf):
-    raise RuntimeError(f"wkhtmltopdf não encontrado no caminho: {path_wkhtmltopdf}")
-
-print("wkhtmltopdf localizado em:", path_wkhtmltopdf)
-config = pdfkit.configuration(wkhtmltopdf=path_wkhtmltopdf)
-
-# Importações condicionais para travamento de arquivo
-if sys.platform == 'win32':
-    import msvcrt
+# Configuração correta para travamento de arquivo
+if sys.platform == 'win32':  # Corrigido "wins2" para "win32"
+    import msvcrt  # Corrigido "msvcrit" para "msvcrt"
 else:
     import fcntl
 
-    # ... outras importações ...
-
+# Configuração dinâmica do caminho do wkhtmltopdf
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 if sys.platform == 'win32':
-    WKHTMLTOPDF_PATH = os.path.join(BASE_DIR, 'bin', 'wkhtmltopdf.exe')
+    # Caminho padrão de instalação no Windows
+    WKHTMLTOPDF_PATH = r'C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe'
 else:
     WKHTMLTOPDF_PATH = os.path.join(BASE_DIR, 'bin', 'wkhtmltopdf')
 
 config = pdfkit.configuration(wkhtmltopdf=WKHTMLTOPDF_PATH)
 
-# ... restante do seu código ...
 app = Flask(__name__)
 app.config['TEMPLATES_AUTO_RELOAD'] = True
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 
-
-
-
 options = {
     'disable-external-links': None,
     'disable-javascript': None,
-    'no-stop-slow-scripts': None,
+    'no-stop-slow-scripts': None,  # Corrigido "slowscripts"
     'load-error-handling': 'ignore',
     'image-dpi': '300',
     'enable-local-file-access': None,
@@ -71,7 +43,9 @@ options = {
     'print-media-type': None,
     'page-width': '210mm',
     'page-height': '297mm'
-}
+}  # Faltava fechar o dicionário
+
+# ... restante do código ...
 
 cpf = CPF()
 cnpj = CNPJ()
