@@ -2,9 +2,32 @@ from flask import Flask, render_template, request, send_file, redirect, url_for
 import pdfkit
 import io
 import os
+import shutil
 from validate_docbr import CPF, CNPJ
+import platform
+import sys
 
-import sys # Importe sys globalmente
+
+# Diagnóstico: mostrar sistema
+print("Sistema detectado no deploy:", platform.system())
+
+# Caminho automático via PATH
+path_wkhtmltopdf = shutil.which("wkhtmltopdf")
+
+# Fallbacks se o caminho automático falhar
+if not path_wkhtmltopdf:
+    print("wkhtmltopdf não encontrado no PATH, tentando caminhos fixos...")
+    if platform.system().lower().startswith('win'):
+        path_wkhtmltopdf = r"C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe"
+    else:
+        path_wkhtmltopdf = "/usr/local/bin/wkhtmltopdf"
+
+# Verificação final
+if not os.path.exists(path_wkhtmltopdf):
+    raise RuntimeError(f"wkhtmltopdf não encontrado no caminho: {path_wkhtmltopdf}")
+
+print("wkhtmltopdf localizado em:", path_wkhtmltopdf)
+config = pdfkit.configuration(wkhtmltopdf=path_wkhtmltopdf)
 
 # Importações condicionais para travamento de arquivo
 if sys.platform == 'win32':
@@ -28,7 +51,9 @@ app = Flask(__name__)
 app.config['TEMPLATES_AUTO_RELOAD'] = True
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 
-config = pdfkit.configuration(wkhtmltopdf='C:\\Program Files\\wkhtmltopdf\\bin\\wkhtmltopdf.exe')
+
+
+
 options = {
     'disable-external-links': None,
     'disable-javascript': None,
