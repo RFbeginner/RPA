@@ -1,6 +1,6 @@
-FROM python:3.11.9-slim
+FROM python:3.11-slim
 
-# Instalar dependências do sistema
+# Instalar dependências do sistema para Ubuntu noble
 RUN apt-get update && apt-get install -y \
     wget \
     xfonts-75dpi \
@@ -8,13 +8,17 @@ RUN apt-get update && apt-get install -y \
     libxrender1 \
     libfontconfig1 \
     libx11-dev \
-    libjpeg62-turbo-dev \
+    libjpeg-turbo8-dev \
     libxtst6 \
-    fontconfig
+    fontconfig \
+    ca-certificates
 
 # Baixar e instalar wkhtmltopdf
-RUN wget https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6.1-2/wkhtmltox_0.12.6.1-2.jammy_amd64.deb
-RUN dpkg -i wkhtmltox_0.12.6.1-2.jammy_amd64.deb || apt-get install -yf
+RUN wget https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6.1-2/wkhtmltox_0.12.6.1-2.jammy_amd64.deb && \
+    dpkg -i wkhtmltox_0.12.6.1-2.jammy_amd64.deb || apt-get install -yf && \
+    rm wkhtmltox_0.12.6.1-2.jammy_amd64.deb
+
+# Configurar caminhos
 RUN ln -s /usr/local/bin/wkhtmltopdf /usr/bin/wkhtmltopdf
 
 WORKDIR /app
