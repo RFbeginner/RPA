@@ -8,17 +8,14 @@ RUN apt-get update && apt-get install -y \
     libxrender1 \
     libfontconfig1 \
     libx11-dev \
-    libjpeg-turbo8-dev \
+    libjpeg62-turbo-dev \
     libxtst6 \
     fontconfig \
     ca-certificates
 
 # Baixar e instalar wkhtmltopdf
-RUN wget https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6.1-2/wkhtmltox_0.12.6.1-2.jammy_amd64.deb && \
-    dpkg -i wkhtmltox_0.12.6.1-2.jammy_amd64.deb || apt-get install -yf && \
-    rm wkhtmltox_0.12.6.1-2.jammy_amd64.deb
-
-# Configurar caminhos
+RUN wget https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6.1-2/wkhtmltox_0.12.6.1-2.jammy_amd64.deb
+RUN dpkg -i wkhtmltox_0.12.6.1-2.jammy_amd64.deb || apt-get install -yf
 RUN ln -s /usr/local/bin/wkhtmltopdf /usr/bin/wkhtmltopdf
 
 WORKDIR /app
