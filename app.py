@@ -14,8 +14,14 @@ else:
 
     # ... outras importações ...
 
-WKHTMLTOPDF_BIN = os.environ.get('WKHTMLTOPDF_BINARY_PATH', 'C:\\Program Files\\wkhtmltopdf\\bin\\wkhtmltopdf.exe')
-config = pdfkit.configuration(wkhtmltopdf=WKHTMLTOPDF_BIN)
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+if sys.platform == 'win32':
+    WKHTMLTOPDF_PATH = os.path.join(BASE_DIR, 'bin', 'wkhtmltopdf.exe')
+else:
+    WKHTMLTOPDF_PATH = os.path.join(BASE_DIR, 'bin', 'wkhtmltopdf')
+
+config = pdfkit.configuration(wkhtmltopdf=WKHTMLTOPDF_PATH)
 
 # ... restante do seu código ...
 app = Flask(__name__)
